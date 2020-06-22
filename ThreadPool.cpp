@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool():_mutex(),_isStarted(false),_defaultPori(3),_defaultPoolNum(3)
+ThreadPool::ThreadPool():_defaultPori(3),_defaultPoolNum(3),_mutex(),_isStarted(false)
 {
 }
 
@@ -18,13 +18,6 @@ void ThreadPool::start()
   assert(_threads.empty());
    _begintime = std::chrono::high_resolution_clock::now();
   _isStarted = true;
-  _threads.reservstruct poCmp
-    {
-        bool operator()(const ThreadPool::TaskPair p1, const ThreadPool::TaskPair p2)
-        {
-            return p1.first > p2.first;
-        }
-    };e(_defaultPoolNum);
   for (int i = 0; i < _defaultPoolNum; ++i)
   {
     _threads.push_back(new std::thread(std::bind(&ThreadPool::threadLoop, this)));
@@ -36,7 +29,6 @@ void ThreadPool::start(int maxth)
   assert(_threads.empty());
   _begintime = std::chrono::high_resolution_clock::now();
   _isStarted = true;
-  _threads.reserve(maxth);
   for (int i = 0; i < maxth; ++i)
   {
     _threads.push_back(new std::thread(std::bind(&ThreadPool::threadLoop, this)));
@@ -104,7 +96,6 @@ ThreadPool::Task ThreadPool::take()
   {
     ret = _tasks.top().second;
     _tasks.pop();
-    assert(_size - 1 == _tasks.size());
   }
 
   return ret;

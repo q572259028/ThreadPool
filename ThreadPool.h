@@ -11,11 +11,24 @@
 
 class ThreadPool
 {
+private:
     typedef int priority;
     typedef double addTime;
     typedef std::function<void()> Task;
-    typedef std::pair<std::pair<priority,addTime>, Task> TaskPair;
     typedef std::vector<std::thread*> Threads;
+    ThreadPool(const ThreadPool&);
+    const ThreadPool& operator=(const ThreadPool&);
+    void threadLoop();
+    Task take();
+
+    priority _defaultPori;
+    int _defaultPoolNum;
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> _begintime;
+    std::mutex _mutex;
+    bool _isStarted;
+public:
+    typedef std::pair<std::pair<priority,addTime>, Task> TaskPair;
     struct poCmp
     {
         bool operator()(const ThreadPool::TaskPair p1, const ThreadPool::TaskPair p2)
@@ -24,7 +37,8 @@ class ThreadPool
         }
     };
     typedef std::priority_queue<TaskPair, std::vector<TaskPair>, poCmp> Tasks;
-public:
+
+
 
     ThreadPool();
     ~ThreadPool();
@@ -37,18 +51,8 @@ public:
     void setDefaultPori(priority);
     void setDefaultPoolNum(int);
 private:
-    ThreadPool(const ThreadPool&);
-    const ThreadPool& operator=(const ThreadPool&);
-    void threadLoop();
-    Task take();
-
-    priority _defaultPori;
-    int _defaultPoolNum;
     Threads _threads;
     Tasks _tasks;
-    std::chrono::time_point<std::chrono::high_resolution_clock> _begintime;
-    std::mutex _mutex;
-    bool _isStarted;
 };
 
 #endif
